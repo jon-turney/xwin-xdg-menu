@@ -1,0 +1,8 @@
+xwin-xdg-menu
+=============
+
+xwin-xdg-menu is a simple XDG menu which appears in the Windows notification area.
+
+'./configure; make; make install' should configure, build, and install xwin-xdg-menu.
+
+gcc, gtk+-2.0 and libgnome-menu-3.0 are required to build xwin-xdg-menu.
