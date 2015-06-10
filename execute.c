@@ -140,6 +140,8 @@ ExecAndLogThread(void *cmd)
         printf("fork() to run command failed\n");
     }
 
+    free(cmd);
+
     return (void *) (intptr_t) status;
 }
 
@@ -147,10 +149,41 @@ void
 menu_item_execute(int id)
 {
   GDesktopAppInfo *appinfo = menu.appinfo[id-1];
-  const char *cCmd = g_app_info_get_executable(G_APP_INFO(appinfo));
+  const char *fmt = g_app_info_get_commandline(G_APP_INFO(appinfo));
+
+  // process field codes
+  char *cmd = malloc(strlen(fmt) + 1);
+  unsigned int i, j = 0;
+  for (i = 0; i < strlen(fmt) + 1; i++)
+    {
+      if (fmt[i] == '%')
+        {
+          i++;
+          if (i < strlen(fmt))
+            {
+              // field code %% is an escaped %
+              if (fmt[i] == '%')
+                {
+                  cmd[j] = '%';
+                  j++;
+                }
+              // We don't support launching with file(s) or URL(s) so we should
+              // remove any %f %u %F %U.
+              // Deprecated field codes can also be removed
+              // XXX: field codes %i %c %k could be implemented
+            }
+        }
+      else
+        {
+          cmd[j] = fmt[i];
+          j++;
+        }
+    }
+
+  // XXX: unquoting ???
 
   pthread_t t;
-  if (!pthread_create(&t, NULL, ExecAndLogThread, (void *)cCmd))
+  if (!pthread_create(&t, NULL, ExecAndLogThread, (void *)cmd))
     pthread_detach(t);
   else
     printf("Creating command output logging thread failed\n");
