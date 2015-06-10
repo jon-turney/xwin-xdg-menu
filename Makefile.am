@@ -22,6 +22,9 @@ xwin_xdg_menu_SOURCES = \
 
 resource.o: resource.rc X.ico resource.h
 
+X.ico: X.svg
+	$(AM_V_GEN)convert -background transparent $(srcdir)/X.svg -trim -define icon:auto-resize X.ico
+
 menudir = $(sysconfdir)/xdg/menus
 
 menu_DATA = \
@@ -29,4 +32,8 @@ menu_DATA = \
 
 EXTRA_DIST = \
 	version \
+	X.svg \
 	$(menu_DATA)
+
+CLEANFILES = \
+	X.ico
