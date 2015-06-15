@@ -20,7 +20,7 @@ xwin_xdg_menu_SOURCES = \
 .rc.o:
 	$(AM_V_GEN)$(WINDRES) -i $< --input-format=rc -o $@ -O coff --use-temp-file -DVERSION=\"@VERSION@\"
 
-resource.o: resource.rc X.ico resource.h
+resource.o: resource.rc X.ico hippo.ico resource.h
 
 X.ico: X.svg
 	$(AM_V_GEN)convert -background transparent $(srcdir)/X.svg -trim -define icon:auto-resize X.ico
@@ -33,6 +33,7 @@ menu_DATA = \
 EXTRA_DIST = \
 	version \
 	X.svg \
+	hippo.ico \
 	$(menu_DATA)
 
 CLEANFILES = \

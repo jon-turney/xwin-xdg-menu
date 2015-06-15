@@ -29,6 +29,7 @@
 #include <windows.h>
 #include "resource.h"
 
+IDI_TRAY                ICON    "hippo.ico"
 IDI_XWIN                ICON    "X.ico"
 
 IDM_SETTINGS_MENU MENU

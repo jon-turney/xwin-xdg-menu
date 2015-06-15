@@ -301,7 +301,6 @@ static void
 menu_from_tree(void)
 {
     GMenuTree* tree;
-    GMenuTreeDirectory* root;
     GError *error = NULL;
 
     // Build the XDG desktop menu
@@ -315,6 +314,7 @@ menu_from_tree(void)
       }
     else
       {
+        GMenuTreeDirectory* root;
         root = gmenu_tree_get_root_directory (tree);
 
         if (root == NULL)

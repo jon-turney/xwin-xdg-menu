@@ -51,7 +51,7 @@ taskbarIcon(void)
 {
     HICON hIcon;
     hIcon = (HICON) LoadImage(GetModuleHandle(NULL),
-                              MAKEINTRESOURCE(IDI_XWIN),
+                              MAKEINTRESOURCE(IDI_TRAY),
                               IMAGE_ICON,
                               GetSystemMetrics(SM_CXSMICON),
                               GetSystemMetrics(SM_CYSMICON), LR_SHARED);

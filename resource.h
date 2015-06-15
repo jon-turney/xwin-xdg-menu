@@ -31,6 +31,7 @@
 
 #define IDC_STATIC         -1
 
+#define IDI_TRAY          100
 #define IDI_XWIN          101
 #define IDM_SETTINGS_MENU 102
 #define IDD_ABOUT         103
