@@ -148,7 +148,7 @@ ExecAndLogThread(void *cmd)
 void
 menu_item_execute(int id)
 {
-  GDesktopAppInfo *appinfo = menu.appinfo[id-1];
+  GDesktopAppInfo *appinfo = menu_get_appinfo(id);
   const char *fmt = g_app_info_get_commandline(G_APP_INFO(appinfo));
 
   // process field codes

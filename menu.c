@@ -45,7 +45,28 @@
 #include <resource.h>
 
 extern HMENU hMenuTray;
-xdgmenu menu;
+
+typedef struct _xdgmenu
+{
+  // the GMenuTree
+  GMenuTree* tree;
+
+  // the windows menu structure
+  HMENU hMenu;
+  // size of the bitmaps
+  int size;
+  int size_id;
+
+  // mapping between menu item IDs and the menu item data
+  int count;
+  GDesktopAppInfo **appinfo;
+
+  // bitmaps for menu items
+  HBITMAP *bitmaps;
+} xdgmenu;
+
+// singleton instance
+static xdgmenu menu;
 
 // '&' in menu text indicates a keyboard accelerator, so escape them with another '&'
 static const char *
@@ -300,14 +321,10 @@ menu_from_directory(xdgmenu *menu, GMenuTreeDirectory *directory)
 static void
 menu_from_tree(void)
 {
-    GMenuTree* tree;
     GError *error = NULL;
 
     // Build the XDG desktop menu
-    tree = gmenu_tree_new ("xwin-applications.menu", GMENU_TREE_FLAGS_NONE);
-    g_assert (tree != NULL);
-
-    if (!gmenu_tree_load_sync (tree, &error))
+    if (!gmenu_tree_load_sync (menu.tree, &error))
       {
         g_printerr ("Failed to load tree: %s\n", error->message);
         menu.hMenu = CreatePopupMenu();
@@ -315,7 +332,7 @@ menu_from_tree(void)
     else
       {
         GMenuTreeDirectory* root;
-        root = gmenu_tree_get_root_directory (tree);
+        root = gmenu_tree_get_root_directory(menu.tree);
 
         if (root == NULL)
           {
@@ -327,8 +344,6 @@ menu_from_tree(void)
           }
 
         gmenu_tree_item_unref (root);
-
-        g_object_unref (tree);
       }
 
     // Add menu items specific to this application
@@ -359,6 +374,7 @@ menu_free(void)
 
   DestroyMenu(menu.hMenu);
   menu.hMenu = NULL;
+  hMenuTray = NULL;
 }
 
 void
@@ -395,9 +411,10 @@ menu_set_icon_size(int size_id)
     }
 }
 
-void
-menu_refresh(void)
+static void
+menu_changed(GMenuTree *tree)
 {
+  g_print("Re-reading menu tree\n");
   menu_free();
   menu_from_tree();
 }
@@ -411,5 +428,17 @@ menu_init(void)
   menu.bitmaps = NULL;
   menu.size = MIN(GetSystemMetrics(SM_CXMENUCHECK), GetSystemMetrics(SM_CYMENUCHECK));
   menu.size_id = ID_SIZE_DEFAULT;
+
+  // create the GMenuTree object
+  menu.tree = gmenu_tree_new ("xwin-applications.menu", GMENU_TREE_FLAGS_NONE);
+  g_assert (menu.tree != NULL);
+  g_signal_connect(menu.tree, "changed", G_CALLBACK(menu_changed), NULL);
+
   menu_from_tree();
+}
+
+GDesktopAppInfo *
+menu_get_appinfo(int id)
+{
+  return menu.appinfo[id-1];
 }

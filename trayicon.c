@@ -176,10 +176,6 @@ handleIconMessage(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
               DialogBox(NULL, MAKEINTRESOURCE(IDD_ABOUT), hwnd, aboutDlgProc);
               break;
 
-            case ID_APP_REFRESH:
-              menu_refresh();
-              break;
-
             case ID_SIZE_DEFAULT:
             case ID_SIZE_16:
             case ID_SIZE_32:

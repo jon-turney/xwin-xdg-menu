@@ -32,27 +32,8 @@
 #include <windows.h>
 #include <gio/gdesktopappinfo.h>
 
-typedef struct _xdgmenu
-{
-  // the windows menu structure
-  HMENU hMenu;
-  // size of the bitmaps
-  int size;
-  int size_id;
-
-  // mapping between menu item IDs and the menu item data
-  int count;
-  GDesktopAppInfo **appinfo;
-
-  // bitmaps for menu items
-  HBITMAP *bitmaps;
-} xdgmenu;
-
-// global instance
-xdgmenu menu;
-
 void menu_init(void);
-void menu_refresh(void);
 void menu_set_icon_size(int size);
+GDesktopAppInfo *menu_get_appinfo(int id);
 
 #endif /* MENU_H */

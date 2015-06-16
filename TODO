@@ -7,4 +7,3 @@ Implement Path and Terminal .desktop entry keys (assuming we can find .desktop w
 Implement Type=Link .desktop entry
 Implement (or use gmenu implementation of) dbus activation
 Remember settings such as icon size (in dotfile?)
-Reload doesn't work

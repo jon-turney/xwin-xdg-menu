@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include <trayicon.h>
+#include <glib.h>
 
 #define WINDOW_CLASS "xwin-xdg-menu"
 #define WINDOW_NAME "xwin-xdg-menu"
@@ -103,20 +104,37 @@ createMsgWindow(void)
 void *
 msgWindowThreadProc(void)
 {
+    GMainLoop *main_loop;
     HWND hwndMsg = createMsgWindow();
+    BOOL bQuit = FALSE;
+
+    main_loop = g_main_loop_new (NULL, FALSE);
 
     if (hwndMsg) {
         MSG msg;
 
         initNotifyIcon(hwndMsg);
 
-        /* Pump the msg window message queue */
-        while (GetMessage(&msg, NULL, 0, 0) > 0) {
-          DispatchMessage(&msg);
+        while (!bQuit)
+          {
+            MsgWaitForMultipleObjects(0, NULL, FALSE, 15*1000, QS_ALLINPUT);
+
+            /* Pump the msg window message queue */
+            while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+              DispatchMessage(&msg);
+
+              if (msg.message == WM_QUIT)
+                bQuit = TRUE;
+            }
+
+            /* Run Glib event processing */
+            g_main_context_iteration(g_main_context_default(), FALSE);
         }
     }
 
     deleteNotifyIcon(hwndMsg);
+
+    g_main_loop_unref (main_loop);
 
     return NULL;
 }

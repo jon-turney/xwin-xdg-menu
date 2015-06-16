@@ -39,7 +39,6 @@
 #define IDC_DISPLAY       105
 
 #define ID_APP_ABOUT      200
-#define ID_APP_REFRESH    201
 #define ID_APP_EXIT       202
 #define ID_SIZE_DEFAULT   203
 #define ID_SIZE_16        204
