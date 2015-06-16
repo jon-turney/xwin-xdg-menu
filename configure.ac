@@ -1,5 +1,5 @@
-AC_INIT(xwin-xdm-menu, m4_esyscmd([cat version | tr -d '\n']))
-AM_INIT_AUTOMAKE([-Wall -Werror foreign])
+AC_INIT(xwin-xdg-menu, 0.0)
+AM_INIT_AUTOMAKE([dist-xz no-dist-gzip -Wall -Werror foreign])
 AM_SILENT_RULES([yes])
 AC_PROG_CC
 AC_CHECK_TOOL(WINDRES, windres)

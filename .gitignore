@@ -5,6 +5,6 @@ configure
 depcomp
 install-sh
 missing
-version
+version.h
 X.ico
 

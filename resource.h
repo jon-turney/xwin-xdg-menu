@@ -36,6 +36,7 @@
 #define IDM_SETTINGS_MENU 102
 #define IDD_ABOUT         103
 #define IDC_ABOUT_WEBSITE 104
+#define IDC_DISPLAY       105
 
 #define ID_APP_ABOUT      200
 #define ID_APP_REFRESH    201

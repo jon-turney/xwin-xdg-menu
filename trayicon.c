@@ -110,6 +110,12 @@ aboutDlgProc(HWND hwndDialog, UINT message, WPARAM wParam, LPARAM lParam)
       HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_XWIN));
       PostMessage(hwndDialog, WM_SETICON, ICON_BIG, (LPARAM) hIcon);
 
+      /* Set the DISPLAY */
+      char *display = NULL;
+      if (asprintf(&display, "DISPLAY is %s", getenv("DISPLAY")) > 0)
+        SetWindowText(GetDlgItem(hwndDialog, IDC_DISPLAY), display);
+      free(display);
+
       return TRUE;
     }
 

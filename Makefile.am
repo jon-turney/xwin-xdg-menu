@@ -18,9 +18,9 @@ xwin_xdg_menu_SOURCES = \
 	trayicon.h
 
 .rc.o:
-	$(AM_V_GEN)$(WINDRES) -i $< --input-format=rc -o $@ -O coff --use-temp-file -DVERSION=\"@VERSION@\"
+	$(AM_V_GEN)$(WINDRES) -i $< --input-format=rc -o $@ -O coff --use-temp-file -I$(builddir)
 
-resource.o: resource.rc X.ico hippo.ico resource.h
+resource.o: resource.rc X.ico hippo.ico resource.h version.h
 
 X.ico: X.svg
 	$(AM_V_GEN)convert -background transparent $(srcdir)/X.svg -trim -define icon:auto-resize X.ico
@@ -31,10 +31,21 @@ menu_DATA = \
 	xwin-applications.menu
 
 EXTRA_DIST = \
-	version \
+	update-version \
+	version.h \
 	X.svg \
 	hippo.ico \
 	$(menu_DATA)
 
 CLEANFILES = \
 	X.ico
+
+DISTCLEANFILES = \
+	version.h
+
+version.h: update-version-if-changed
+	$(AM_V_GEN)
+
+.PHONY: force
+update-version-if-changed: force
+	@$(srcdir)/update-version
