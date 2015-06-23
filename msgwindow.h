@@ -29,6 +29,8 @@
 #ifndef MSGWINDOW_H
 #define MSGWINDOW_H
 
-void *msgWindowThreadProc(void);
+#include <windows.h>
+
+HWND createMsgWindow(void);
 
 #endif /* MSGWINDOW_H */
