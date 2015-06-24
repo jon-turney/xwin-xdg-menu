@@ -1,0 +1,35 @@
+.TH xwin-xdg-menu 1 "" Cygwin Cygwin
+.SH NAME
+xwin-xdg-menu \- An XDG Desktop Menu Specification menu
+
+.SH SYNOPSIS
+.B xwin-xdg-menu
+
+.SH DESCRIPTION
+\fIxwin-xdg-menu\fP is an XDG Desktop Menu Specification menu for the X Window
+System running in the Cygwin environment.
+
+\fIxwin-xdg-menu\fP reads the menu specification and desktop entries, and
+constructs a menu which is accessed from a notification area icon.
+
+.SH FILES
+.TP 15
+.I *.menu
+desktop menu
+.P
+.TP 15
+.I *.desktop
+desktop entry
+
+.SH "CONFORMING TO"
+XDG Desktop Menu Specification
+
+XDG Desktop Entry Specification
+
+.SH "SEE ALSO"
+.BR XWin(1)
+
+.SH AUTHORS
+xwin-xdg-menu was written by Jon Turney.  It uses libgnome-menu to do most of the
+heavy lifting of reading the menu structure, and re-uses code from
+\fIXWin(1)\fP's integrated application menu to present the menu.

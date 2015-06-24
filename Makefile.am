@@ -30,6 +30,8 @@ menudir = $(sysconfdir)/xdg/menus
 menu_DATA = \
 	xwin-applications.menu
 
+dist_man1_MANS = xwin-xdg-menu.man
+
 EXTRA_DIST = \
 	update-version \
 	version.h \
