@@ -173,11 +173,12 @@ menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
                       for (x = bmiV4Header.bV4Width; x; --x)
                         {
                           // convert from RGB to BGR
-                          BYTE x = pRGB[2];
+                          BYTE b = pRGB[2];
                           pRGB[2] = pRGB[0];
-                          pRGB[0] = x;
+                          pRGB[0] = b;
+
+                          pRGB = pRGB + 3;
                         }
-                      pRGB = pRGB + 3;
                     }
                 }
             }
