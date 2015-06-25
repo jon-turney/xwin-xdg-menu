@@ -6,5 +6,4 @@ Startup performance
 Implement Path and Terminal .desktop entry keys (assuming we can find .desktop which uses it)
 Implement Type=Link .desktop entry
 Implement (or use gmenu implementation of) dbus activation
-Remember settings such as icon size (in dotfile?)
 Should catch SIGINT etc. and remove icon, rather than leaving it to taskbar to remove when it notices we've gone

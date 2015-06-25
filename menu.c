@@ -378,8 +378,8 @@ menu_free(void)
   hMenuTray = NULL;
 }
 
-void
-menu_set_icon_size(int size_id)
+static int
+menu_size_id_to_size(int size_id)
 {
   int size;
 
@@ -403,8 +403,18 @@ menu_set_icon_size(int size_id)
       break;
     }
 
+  return size;
+}
+
+void
+menu_set_icon_size(int size_id)
+{
+  int size = menu_size_id_to_size(size_id);
+
   if (menu.size != size)
     {
+      g_key_file_set_integer(keyfile, "settings", "iconsize", size_id);
+
       menu_free();
       menu.size = size;
       menu.size_id = size_id;
@@ -421,14 +431,15 @@ menu_changed(GMenuTree *tree)
 }
 
 void
-menu_init(void)
+menu_init(int size_id)
 {
   menu.hMenu = NULL;
   menu.count = 0;
   menu.appinfo = NULL;
   menu.bitmaps = NULL;
-  menu.size = MIN(GetSystemMetrics(SM_CXMENUCHECK), GetSystemMetrics(SM_CYMENUCHECK));
-  menu.size_id = ID_SIZE_DEFAULT;
+
+  menu.size_id = size_id;
+  menu.size = menu_size_id_to_size(size_id);
 
   // create the GMenuTree object
   menu.tree = gmenu_tree_new ("xwin-applications.menu", GMENU_TREE_FLAGS_NONE);

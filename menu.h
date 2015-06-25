@@ -32,8 +32,10 @@
 #include <windows.h>
 #include <gio/gdesktopappinfo.h>
 
-void menu_init(void);
-void menu_set_icon_size(int size);
+void menu_init(int size_id);
+void menu_set_icon_size(int size_id);
 GDesktopAppInfo *menu_get_appinfo(int id);
+
+extern GKeyFile *keyfile;
 
 #endif /* MENU_H */

@@ -29,10 +29,12 @@
 #include "menu.h"
 #include "msgwindow.h"
 #include "trayicon.h"
+#include "resource.h"
 #include <glib.h>
 #include <fcntl.h>
 
 GMainLoop *main_loop;
+GKeyFile *keyfile = NULL;
 
 //
 // GSourceWinMsgQueue
@@ -106,12 +108,28 @@ winMsgQueueCreate(void)
 int
 main (int argc, char **argv)
 {
-  menu_init();
+  int size_id = ID_SIZE_DEFAULT;
 
+  // load settings
+  keyfile = g_key_file_new();
+  gchar *filename = g_strjoin(NULL, g_get_user_config_dir(), "/xwin-xdg-menu", NULL);
+  if (g_key_file_load_from_file(keyfile, filename, G_KEY_FILE_KEEP_COMMENTS, NULL))
+    {
+      GError *err = NULL;
+      int tmp = g_key_file_get_integer(keyfile, "settings", "iconsize", &err);
+      if (!err)
+        size_id = tmp;
+    }
+
+  // construct menu
+  menu_init(size_id);
+
+  // construct message window
   HWND hwndMsg = createMsgWindow();
   if (!hwndMsg)
     return -1;
 
+  // main loop
   main_loop = g_main_loop_new(NULL, FALSE);
   GSource *msgQueueSource = winMsgQueueCreate();
   g_source_attach(msgQueueSource, g_main_context_default());
@@ -124,6 +142,11 @@ main (int argc, char **argv)
 
   g_source_destroy(msgQueueSource);
   g_main_loop_unref(main_loop);
+
+  // save settings
+  g_key_file_save_to_file(keyfile, filename, NULL);
+  g_key_file_free(keyfile);
+  g_free(filename);
 
   return 0;
 }
