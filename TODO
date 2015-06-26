@@ -1,6 +1,5 @@
 Audit for resource leaks
 Handle -display argument
-Can we do something with /proc/pid/fd/1 to view logfile?
 Mode to popup menu once and then exit?
 Startup performance
 Implement Path and Terminal .desktop entry keys (assuming we can find .desktop which uses it)

@@ -146,6 +146,17 @@ ExecAndLogThread(void *cmd)
 }
 
 static void
+execute_cmd(char *cmd)
+{
+  // note that free() will be applied to cmd after the command has exited
+  pthread_t t;
+  if (!pthread_create(&t, NULL, ExecAndLogThread, (void *)cmd))
+    pthread_detach(t);
+  else
+    printf("Creating command output logging thread failed\n");
+}
+
+static void
 menu_cmd_add_text(unsigned int *j, char **cmd, const char *add)
 {
   if (add)
@@ -220,9 +231,19 @@ menu_item_execute(int id)
 
   // XXX: unquoting ???
 
-  pthread_t t;
-  if (!pthread_create(&t, NULL, ExecAndLogThread, (void *)cmd))
-    pthread_detach(t);
-  else
-    printf("Creating command output logging thread failed\n");
+  execute_cmd(cmd);
+}
+
+void
+view_logfile_execute(void)
+{
+  char logfile[PATH_MAX+1];
+  ssize_t l = readlink("/proc/self/fd/1", logfile, PATH_MAX);
+  if (l > 0)
+    {
+      logfile[l] = 0; // readlink does not null terminate it's result
+      char *cmd = NULL;
+      asprintf(&cmd, "xterm -title '%s' -e less +F %s", logfile, logfile);
+      execute_cmd(cmd);
+    }
 }

@@ -30,5 +30,6 @@
 #define EXECUTE_H
 
 void menu_item_execute(int id);
+void view_logfile_execute(void);
 
 #endif /* EXECUTE_H */

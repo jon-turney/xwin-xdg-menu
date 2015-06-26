@@ -32,6 +32,7 @@
 #include "resource.h"
 #include <glib.h>
 #include <fcntl.h>
+#include <stdio.h>
 
 GMainLoop *main_loop;
 GKeyFile *keyfile = NULL;
@@ -108,9 +109,11 @@ winMsgQueueCreate(void)
 int
 main (int argc, char **argv)
 {
-  int size_id = ID_SIZE_DEFAULT;
+  // make sure stdout is line-buffered
+  setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
 
   // load settings
+  int size_id = ID_SIZE_DEFAULT;
   keyfile = g_key_file_new();
   gchar *filename = g_strjoin(NULL, g_get_user_config_dir(), "/xwin-xdg-menu", NULL);
   if (g_key_file_load_from_file(keyfile, filename, G_KEY_FILE_KEEP_COMMENTS, NULL))

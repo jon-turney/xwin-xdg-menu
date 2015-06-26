@@ -36,6 +36,7 @@ IDI_XWIN                ICON    "X.ico"
 IDM_SETTINGS_MENU MENU
 BEGIN
   MENUITEM "&About...", ID_APP_ABOUT
+  MENUITEM "View &logfile", ID_APP_LOGFILE
   POPUP "Icon &size"
   BEGIN
     MENUITEM "Default", ID_SIZE_DEFAULT
