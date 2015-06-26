@@ -145,6 +145,17 @@ ExecAndLogThread(void *cmd)
     return (void *) (intptr_t) status;
 }
 
+static void
+menu_cmd_add_text(unsigned int *j, char **cmd, const char *add)
+{
+  if (add)
+    {
+      *cmd = realloc(*cmd, strlen(add) + *j);
+      memcpy(&(*cmd)[*j], add, strlen(add));
+      *j = *j + strlen(add);
+    }
+}
+
 void
 menu_item_execute(int id)
 {
@@ -152,7 +163,7 @@ menu_item_execute(int id)
   const char *fmt = g_app_info_get_commandline(G_APP_INFO(appinfo));
 
   // process field codes
-  char *cmd = malloc(strlen(fmt) + 1);
+  char *cmd = malloc(1);
   unsigned int i, j = 0;
   for (i = 0; i < strlen(fmt) + 1; i++)
     {
@@ -161,20 +172,47 @@ menu_item_execute(int id)
           i++;
           if (i < strlen(fmt))
             {
-              // field code %% is an escaped %
-              if (fmt[i] == '%')
+              switch (fmt[i])
                 {
+                case '%':
+                  // field code %% is an escaped %
+                  cmd = realloc(cmd, j+1);
                   cmd[j] = '%';
                   j++;
+                  break;
+                case 'c':
+                  // %c Name key from desktop entry
+                  {
+                    const char *name = g_app_info_get_display_name(G_APP_INFO(appinfo));
+                    menu_cmd_add_text(&j, &cmd, name);
+                  }
+                  break;
+                case 'i':
+                  // %i Icon key following '--icon '
+                  // Not yet implemented
+                  break;
+                case 'k':
+                  // %k location of desktop entry file
+                  {
+                    const char *filename = g_desktop_app_info_get_filename(appinfo);
+                    menu_cmd_add_text(&j, &cmd, filename);
+                  }
+                  break;
+                case 'f':
+                case 'u':
+                case 'F':
+                case 'U':
+                default:
+                  // We don't support launching with file(s) or URL(s) so we should
+                  // remove any %f %u %F %U.
+                  // Deprecated field codes can also be removed
+                  i++;
                 }
-              // We don't support launching with file(s) or URL(s) so we should
-              // remove any %f %u %F %U.
-              // Deprecated field codes can also be removed
-              // XXX: field codes %i %c %k could be implemented
             }
         }
       else
         {
+          cmd = realloc(cmd, j+1);
           cmd[j] = fmt[i];
           j++;
         }
