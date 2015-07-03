@@ -38,7 +38,6 @@
 #include <stdio.h>
 #include <sys/resource.h>
 #include <sys/wait.h>
-#include <gio/gdesktopappinfo.h>
 
 static void
 LogLineFromFd(int fd, const char *fdname, int pid)

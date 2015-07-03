@@ -30,6 +30,7 @@
 #define MENU_H
 
 #include <windows.h>
+#undef interface
 #include <gio/gdesktopappinfo.h>
 
 void menu_init(int size_id);
