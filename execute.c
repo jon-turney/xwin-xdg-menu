@@ -216,7 +216,7 @@ menu_item_execute(int id)
                   // We don't support launching with file(s) or URL(s) so we should
                   // remove any %f %u %F %U.
                   // Deprecated field codes can also be removed
-                  i++;
+                  ;
                 }
             }
         }
