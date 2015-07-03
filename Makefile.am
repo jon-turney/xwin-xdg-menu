@@ -20,7 +20,7 @@ xwin_xdg_menu_SOURCES = \
 .rc.o:
 	$(AM_V_GEN)$(WINDRES) -i $< --input-format=rc -o $@ -O coff --use-temp-file -I$(builddir)
 
-resource.o: resource.rc X.ico hippo.ico resource.h version.h xwin-xdg-menu.exe.manifest
+resource.o: resource.rc X.ico cygwinx.ico resource.h version.h xwin-xdg-menu.exe.manifest
 
 X.ico: X.svg
 	$(AM_V_GEN)convert -background transparent $(srcdir)/X.svg -trim -define icon:auto-resize X.ico
@@ -36,7 +36,7 @@ EXTRA_DIST = \
 	update-version \
 	version.h \
 	X.svg \
-	hippo.ico \
+	cygwinx.ico \
 	xwin-xdg-menu.exe.manifest \
 	$(menu_DATA)
 

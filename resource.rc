@@ -30,7 +30,7 @@
 #include "resource.h"
 #include "version.h"
 
-IDI_TRAY                ICON    "hippo.ico"
+IDI_TRAY                ICON    "cygwinx.ico"
 IDI_XWIN                ICON    "X.ico"
 CREATEPROCESS_MANIFEST_RESOURCE_ID      RT_MANIFEST     "xwin-xdg-menu.exe.manifest"
 
