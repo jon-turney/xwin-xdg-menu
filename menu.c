@@ -353,7 +353,7 @@ menu_from_tree(void)
     InsertMenu(menu.hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
     HMENU hSettingsMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDM_SETTINGS_MENU));
     InsertMenu(menu.hMenu, -1, MF_BYPOSITION | MF_POPUP | MF_ENABLED | MF_STRING,
-               (UINT_PTR) hSettingsMenu, "Settings");
+               (UINT_PTR) hSettingsMenu, "XDG Menu");
     CheckMenuItem(hSettingsMenu, menu.size_id, MF_BYCOMMAND | MF_CHECKED);
 
     hMenuTray = menu.hMenu;
