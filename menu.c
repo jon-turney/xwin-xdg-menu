@@ -101,8 +101,10 @@ menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
 
   // This is expensive, so definitely don't want to this more than once...
   static GtkIconTheme *theme = NULL;
-  if (!theme)
+  if (!theme) {
     theme = gtk_icon_theme_new();
+    gtk_icon_theme_set_custom_theme(theme, "Adwaita");
+  }
 
   // It seems that InsertMenuItem only uses the alpha channel of the bitmap if
   // it is a BI_RGB DIB, so we can't use BI_BITFIELDS
