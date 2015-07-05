@@ -90,6 +90,47 @@ escape_ampersand(const char *text)
 }
 
 static HBITMAP
+resource_to_bitmap(int id, int size)
+{
+  HBITMAP hBitmap = NULL;
+  BITMAPV4HEADER bmiV4Header;
+  bmiV4Header.bV4Size = sizeof(BITMAPV4HEADER);
+  bmiV4Header.bV4Width = size;
+  bmiV4Header.bV4Height = size;
+  bmiV4Header.bV4Planes = 1;
+  bmiV4Header.bV4BitCount = 32;
+  bmiV4Header.bV4V4Compression = BI_RGB;
+  bmiV4Header.bV4SizeImage = 0;
+  bmiV4Header.bV4XPelsPerMeter = 0;
+  bmiV4Header.bV4YPelsPerMeter = 0;
+  bmiV4Header.bV4ClrUsed = 0;
+  bmiV4Header.bV4ClrImportant = 0;
+  bmiV4Header.bV4AlphaMask = 0xff000000;
+  bmiV4Header.bV4CSType = 0;
+
+  HDC hScreenDC = GetDC(NULL);
+  HDC hDC = CreateCompatibleDC(hScreenDC);
+
+  void *pBits;
+  hBitmap = CreateDIBSection(hDC, (BITMAPINFO *)&bmiV4Header,
+                             DIB_RGB_COLORS, &pBits, NULL, 0);
+  if (hBitmap)
+    {
+      HBITMAP stock = SelectObject(hDC, hBitmap);
+      HICON hIcon = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(id),
+                              IMAGE_ICON, size, size, LR_SHARED);
+      DrawIconEx(hDC, 0, 0, hIcon, size, size, 0, NULL, DI_NORMAL);
+
+      SelectObject(hDC, stock);
+    }
+
+  DeleteDC(hDC);
+  ReleaseDC(NULL, hScreenDC);
+
+  return hBitmap;
+}
+
+static HBITMAP
 gicon_to_bitmap(GIcon *icon, int size)
 {
   GtkIconInfo *iconInfo = NULL;
@@ -187,40 +228,9 @@ gicon_to_bitmap(GIcon *icon, int size)
   // if no useable icon was found, use the X icon
   if (!hBitmap)
     {
-      BITMAPV4HEADER bmiV4Header;
-      bmiV4Header.bV4Size = sizeof(BITMAPV4HEADER);
-      bmiV4Header.bV4Width = size;
-      bmiV4Header.bV4Height = size;
-      bmiV4Header.bV4Planes = 1;
-      bmiV4Header.bV4BitCount = 32;
-      bmiV4Header.bV4V4Compression = BI_RGB;
-      bmiV4Header.bV4SizeImage = 0;
-      bmiV4Header.bV4XPelsPerMeter = 0;
-      bmiV4Header.bV4YPelsPerMeter = 0;
-      bmiV4Header.bV4ClrUsed = 0;
-      bmiV4Header.bV4ClrImportant = 0;
-      bmiV4Header.bV4AlphaMask = 0xff000000;
-      bmiV4Header.bV4CSType = 0;
-
-      HDC hScreenDC = GetDC(NULL);
-      HDC hDC = CreateCompatibleDC(hScreenDC);
-
-      void *pBits;
-      hBitmap = CreateDIBSection(hDC, (BITMAPINFO *)&bmiV4Header,
-                                 DIB_RGB_COLORS, &pBits, NULL, 0);
-      if (hBitmap)
-        {
-          HBITMAP stock = SelectObject(hDC, hBitmap);
-          HICON hIcon = LoadImage(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_XWIN),
-                                  IMAGE_ICON, size, size, LR_SHARED);
-          DrawIconEx(hDC, 0, 0, hIcon, size, size, 0, NULL, DI_NORMAL);
-
-          SelectObject(hDC, stock);
-        }
-
-      DeleteDC(hDC);
-      ReleaseDC(NULL, hScreenDC);
+      hBitmap = resource_to_bitmap(IDI_XWIN, size);
     }
+
   return hBitmap;
 }
 
@@ -381,8 +391,16 @@ menu_from_tree(void)
     // Add menu items specific to this application
     InsertMenu(menu.hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
     HMENU hSettingsMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDM_SETTINGS_MENU));
-    InsertMenu(menu.hMenu, -1, MF_BYPOSITION | MF_POPUP | MF_ENABLED | MF_STRING,
-               (UINT_PTR) hSettingsMenu, "XDG Menu");
+    MENUITEMINFO mii;
+    mii.cbSize = sizeof(MENUITEMINFO);
+    mii.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_BITMAP;
+    mii.fType = MFT_STRING;
+    mii.dwTypeData = (LPTSTR)"XDG Menu";
+    mii.fState = MFS_ENABLED;
+    mii.wID = -1;
+    mii.hSubMenu = hSettingsMenu;
+    mii.hbmpItem = resource_to_bitmap(IDI_TRAY, menu.size);
+    InsertMenuItem(menu.hMenu, -1, TRUE, &mii);
     CheckMenuItem(hSettingsMenu, menu.size_id, MF_BYCOMMAND | MF_CHECKED);
 
     hMenuTray = menu.hMenu;
