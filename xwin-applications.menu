@@ -98,7 +98,7 @@
   <!-- Preferences -->
   <Menu>
     <Name>Preferences</Name>
-    <!-- no corresponding .directory in gnome-menus -->
+    <Directory>X-Cygwin-Settings.directory</Directory>
     <Include>
       <And>
         <Category>Settings</Category>

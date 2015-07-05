@@ -25,6 +25,11 @@ resource.o: resource.rc X.ico cygwinx.ico resource.h version.h xwin-xdg-menu.exe
 X.ico: X.svg
 	$(AM_V_GEN)convert -background transparent $(srcdir)/X.svg -trim -define icon:auto-resize X.ico
 
+directorydir = $(datadir)/desktop-directories
+
+directory_DATA = \
+	X-Cygwin-Settings.directory
+
 menudir = $(sysconfdir)/xdg/menus
 
 menu_DATA = \
@@ -38,6 +43,7 @@ EXTRA_DIST = \
 	X.svg \
 	cygwinx.ico \
 	xwin-xdg-menu.exe.manifest \
+	$(directory_DATA) \
 	$(menu_DATA)
 
 CLEANFILES = \
