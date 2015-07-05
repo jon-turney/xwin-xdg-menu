@@ -89,15 +89,11 @@ escape_ampersand(const char *text)
   return result;
 }
 
-static void
-menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
+static HBITMAP
+gicon_to_bitmap(GIcon *icon, int size)
 {
-  GDesktopAppInfo *pAppInfo = gmenu_tree_entry_get_app_info(entry);
-
-  // The documentation seems to say that icon should be the same size as the
-  // default check-mark bitmap, but it seems we can get away with using other
-  // sizes...
-  int size = menu->size;
+  GtkIconInfo *iconInfo = NULL;
+  HBITMAP hBitmap = NULL;
 
   // This is expensive, so definitely don't want to this more than once...
   static GtkIconTheme *theme = NULL;
@@ -106,12 +102,10 @@ menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
     gtk_icon_theme_set_custom_theme(theme, "Adwaita");
   }
 
+  if (icon)
+    iconInfo = gtk_icon_theme_lookup_by_gicon(theme, icon, size, GTK_ICON_LOOKUP_FORCE_SIZE);
   // It seems that InsertMenuItem only uses the alpha channel of the bitmap if
   // it is a BI_RGB DIB, so we can't use BI_BITFIELDS
-  HBITMAP hBitmap = NULL;
-
-  GIcon *pIcon = g_app_info_get_icon(G_APP_INFO(pAppInfo));
-  GtkIconInfo *iconInfo = gtk_icon_theme_lookup_by_gicon(theme, pIcon, size, GTK_ICON_LOOKUP_FORCE_SIZE);
   if (iconInfo)
     {
       GdkPixbuf *pixbuf = gtk_icon_info_load_icon(iconInfo, NULL);
@@ -227,6 +221,21 @@ menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
       DeleteDC(hDC);
       ReleaseDC(NULL, hScreenDC);
     }
+  return hBitmap;
+}
+
+static void
+menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
+{
+  GDesktopAppInfo *pAppInfo = gmenu_tree_entry_get_app_info(entry);
+
+  // The documentation seems to say that icon should be the same size as the
+  // default check-mark bitmap, but it seems we can get away with using other
+  // sizes...
+  int size = menu->size;
+
+  GIcon *pIcon = g_app_info_get_icon(G_APP_INFO(pAppInfo));
+  HBITMAP hBitmap = gicon_to_bitmap(pIcon, size);
 
   // Store GDesktopAppInfo and HBITMAP to be accessed via ID
   menu->count++;
@@ -287,11 +296,31 @@ menu_from_directory(xdgmenu *menu, GMenuTreeDirectory *directory)
         case GMENU_TREE_ITEM_DIRECTORY:
           item = gmenu_tree_iter_get_directory(iter);
           HMENU hSubMenu = menu_from_directory(menu, (GMenuTreeDirectory *)item);
+          GIcon *icon = gmenu_tree_directory_get_icon((GMenuTreeDirectory *)item);
+          HBITMAP hBitmap = gicon_to_bitmap(icon, menu->size);
+
+          // Store HBITMAP to be accessed via ID
+          menu->count++;
+          menu->bitmaps = realloc(menu->bitmaps, sizeof(HBITMAP) * menu->count);
+          menu->bitmaps[menu->count-1] = hBitmap;
+
           const char *text = gmenu_tree_directory_get_name((GMenuTreeDirectory *)item);
           text = escape_ampersand(text);
-          if (hSubMenu)
-            InsertMenu(hMenu, -1, MF_BYPOSITION | MF_POPUP | MF_ENABLED | MF_STRING,
-                       (UINT_PTR) hSubMenu, text);
+
+          if (hSubMenu) {
+            // Insert menu item
+            MENUITEMINFO mii;
+            mii.cbSize = sizeof(MENUITEMINFO);
+            mii.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_BITMAP;
+            mii.fType = MFT_STRING;
+            mii.dwTypeData = (LPTSTR)text;
+            mii.fState = MFS_ENABLED;
+            mii.wID = menu->count + ID_EXEC_BASE;
+            mii.hSubMenu = hSubMenu;
+            mii.hbmpItem = hBitmap;
+
+            InsertMenuItem(hMenu, -1, TRUE, &mii);
+          }
           free((char *)text);
           break;
 
