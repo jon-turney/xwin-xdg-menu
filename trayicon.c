@@ -107,7 +107,7 @@ aboutDlgProc(HWND hwndDialog, UINT message, WPARAM wParam, LPARAM lParam)
   switch (message) {
   case WM_INITDIALOG:
     {
-      HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_XWIN));
+      HICON hIcon = LoadIcon(GetModuleHandle(NULL), MAKEINTRESOURCE(IDI_TRAY));
       PostMessage(hwndDialog, WM_SETICON, ICON_BIG, (LPARAM) hIcon);
 
       /* Set the DISPLAY */
