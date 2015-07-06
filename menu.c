@@ -223,6 +223,8 @@ gicon_to_bitmap(GIcon *icon, int size)
           ReleaseDC(NULL, hDC);
           g_object_unref(pixbuf);
         }
+
+      gtk_icon_info_free(iconInfo);
     }
 
   // if no useable icon was found, use the X icon
