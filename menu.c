@@ -235,6 +235,17 @@ gicon_to_bitmap(GIcon *icon, int size)
 }
 
 static void
+store_id_info(xdgmenu *menu, GDesktopAppInfo *pAppInfo, HBITMAP hBitmap)
+{
+  // Store GDesktopAppInfo and HBITMAP to be later accessed via ID
+  menu->count++;
+  menu->appinfo = realloc(menu->appinfo, sizeof(GDesktopAppInfo *) * menu->count);
+  menu->appinfo[menu->count-1] = pAppInfo;
+  menu->bitmaps = realloc(menu->bitmaps, sizeof(HBITMAP) * menu->count);
+  menu->bitmaps[menu->count-1] = hBitmap;
+}
+
+static void
 menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
 {
   GDesktopAppInfo *pAppInfo = gmenu_tree_entry_get_app_info(entry);
@@ -246,13 +257,7 @@ menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
 
   GIcon *pIcon = g_app_info_get_icon(G_APP_INFO(pAppInfo));
   HBITMAP hBitmap = gicon_to_bitmap(pIcon, size);
-
-  // Store GDesktopAppInfo and HBITMAP to be accessed via ID
-  menu->count++;
-  menu->appinfo = realloc(menu->appinfo, sizeof(GDesktopAppInfo *) * menu->count);
-  menu->appinfo[menu->count-1] = pAppInfo;
-  menu->bitmaps = realloc(menu->bitmaps, sizeof(HBITMAP) * menu->count);
-  menu->bitmaps[menu->count-1] = hBitmap;
+  store_id_info(menu, pAppInfo, hBitmap);
 
   //
   const gchar *cName = g_app_info_get_name(G_APP_INFO(pAppInfo));
@@ -308,12 +313,7 @@ menu_from_directory(xdgmenu *menu, GMenuTreeDirectory *directory)
           HMENU hSubMenu = menu_from_directory(menu, (GMenuTreeDirectory *)item);
           GIcon *icon = gmenu_tree_directory_get_icon((GMenuTreeDirectory *)item);
           HBITMAP hBitmap = gicon_to_bitmap(icon, menu->size);
-
-          // Store HBITMAP to be accessed via ID
-          menu->count++;
-          menu->bitmaps = realloc(menu->bitmaps, sizeof(HBITMAP) * menu->count);
-          menu->bitmaps[menu->count-1] = hBitmap;
-
+          store_id_info(menu, NULL, hBitmap);
           const char *text = gmenu_tree_directory_get_name((GMenuTreeDirectory *)item);
           text = escape_ampersand(text);
 
@@ -401,6 +401,7 @@ menu_from_tree(void)
     mii.hSubMenu = hSettingsMenu;
     mii.hbmpItem = resource_to_bitmap(IDI_TRAY, menu.size);
     InsertMenuItem(menu.hMenu, -1, TRUE, &mii);
+    store_id_info(&menu, NULL, mii.hbmpItem);
     CheckMenuItem(hSettingsMenu, menu.size_id, MF_BYCOMMAND | MF_CHECKED);
 
     hMenuTray = menu.hMenu;
