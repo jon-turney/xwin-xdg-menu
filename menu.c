@@ -89,6 +89,37 @@ escape_ampersand(const char *text)
   return result;
 }
 
+static void
+xp_background_blend(BITMAPV4HEADER *bmiV4Header, void *pBits)
+{
+  if (!is_xp)
+    return;
+
+  /*
+     XP doesn't support icons with alpha in menus, so we have to manually blend
+     in the menu background colour to avoid a black background.
+  */
+  COLORREF bg = GetSysColor(COLOR_MENU);
+  DWORD *pargb = pBits;
+  ULONG y, x;
+  for (y = abs(bmiV4Header->bV4Height); y; --y)
+    {
+      for (x = bmiV4Header->bV4Width; x; --x)
+        {
+          DWORD p = *pargb;
+          BYTE r = (p >> 16) & 0xFF;
+          BYTE g = (p >> 8) & 0xff;
+          BYTE b = p & 0xff;
+          BYTE a = p >> 24;
+          r = r + ((GetRValue(bg) * (255 - a)) / 255);
+          g = g + ((GetGValue(bg) * (255 - a)) / 255);
+          b = b + ((GetBValue(bg) * (255 - a)) / 255);
+          *pargb = (0xff << 24) | (r << 16) | (g << 8) | b;
+          pargb++;
+        }
+    }
+}
+
 static HBITMAP
 resource_to_bitmap(int id, int size)
 {
@@ -122,6 +153,7 @@ resource_to_bitmap(int id, int size)
       DrawIconEx(hDC, 0, 0, hIcon, size, size, 0, NULL, DI_NORMAL);
 
       SelectObject(hDC, stock);
+      xp_background_blend(&bmiV4Header, pBits);
     }
 
   DeleteDC(hDC);
@@ -182,13 +214,13 @@ gicon_to_bitmap(GIcon *icon, int size)
                 {
                   // convert from RGBA to BGRA
                   // convert to premultiplied alpha
-                  COLORREF *pargb = pBits;
+                  DWORD *pargb = pBits;
                   ULONG y, x;
                   for (y = -bmiV4Header.bV4Height; y; --y)
                     {
                       for (x = bmiV4Header.bV4Width; x; --x)
                         {
-                          COLORREF p = *pargb;
+                          DWORD p = *pargb;
                           BYTE b = p & 0xFF;
                           BYTE g = (p >> 8) & 0xff;
                           BYTE r = (p >> 16) & 0xff;
@@ -200,6 +232,7 @@ gicon_to_bitmap(GIcon *icon, int size)
                           pargb++;
                         }
                     }
+                  xp_background_blend(&bmiV4Header, pBits);
                 }
               else
                 {
@@ -477,8 +510,8 @@ menu_set_icon_size(int size_id)
     }
 }
 
-static void
-menu_changed(GMenuTree *tree)
+void
+menu_changed(void *tree)
 {
   g_print("Re-reading menu tree\n");
   menu_free();

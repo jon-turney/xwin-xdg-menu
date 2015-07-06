@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <windows.h>
 #include "trayicon.h"
+#include "menu.h"
 #include "msgwindow.h"
 
 #define WINDOW_CLASS "xwin-xdg-menu"
@@ -50,6 +51,10 @@ msgWindowProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
     switch (message) {
     case WM_TRAYICON:
       return handleIconMessage(hwnd, message, wParam, lParam);
+
+    case WM_SYSCOLORCHANGE:
+      if (is_xp)
+        menu_changed(NULL);
     }
 
     return DefWindowProc(hwnd, message, wParam, lParam);
