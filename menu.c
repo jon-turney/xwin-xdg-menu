@@ -437,6 +437,9 @@ menu_size_id_to_size(int size_id)
     case ID_SIZE_16:
       size = 16;
       break;
+    case ID_SIZE_24:
+      size = 24;
+      break;
     case ID_SIZE_32:
       size = 32;
       break;

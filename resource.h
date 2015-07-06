@@ -47,6 +47,7 @@
 #define ID_SIZE_32        205
 #define ID_SIZE_48        206
 #define ID_SIZE_64        207
+#define ID_SIZE_24        208
 
 #define ID_EXEC_BASE     1000
 

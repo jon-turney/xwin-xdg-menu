@@ -182,6 +182,7 @@ handleIconMessage(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             case ID_SIZE_DEFAULT:
             case ID_SIZE_16:
+            case ID_SIZE_24:
             case ID_SIZE_32:
             case ID_SIZE_48:
             case ID_SIZE_64:
