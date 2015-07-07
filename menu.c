@@ -426,6 +426,12 @@ menu_from_tree(void)
     // Add menu items specific to this application
     InsertMenu(menu.hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
     HMENU hSettingsMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDM_SETTINGS_MENU));
+
+    // Remove 'View logfile' if stdout is a tty, as it won't work
+    if (isatty(STDOUT_FILENO))
+      RemoveMenu(hSettingsMenu, ID_APP_LOGFILE, MF_BYCOMMAND);
+
+    // Add settings submenu, with the application icon
     MENUITEMINFO mii;
     mii.cbSize = sizeof(MENUITEMINFO);
     mii.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_BITMAP;
@@ -437,6 +443,8 @@ menu_from_tree(void)
     mii.hbmpItem = resource_to_bitmap(IDI_TRAY, menu.size);
     InsertMenuItem(menu.hMenu, -1, TRUE, &mii);
     store_id_info(&menu, NULL, mii.hbmpItem);
+
+    // Show a check-mark next to current icon size
     CheckMenuItem(hSettingsMenu, menu.size_id, MF_BYCOMMAND | MF_CHECKED);
 
     hMenuTray = menu.hMenu;
