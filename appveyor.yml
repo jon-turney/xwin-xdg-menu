@@ -1,0 +1,27 @@
+version: '{build}'
+skip_tags: true
+environment:
+  CYGWIN_MIRROR: http://cygwin.mirror.constant.com
+  CACHE: C:\cache
+  matrix:
+  - BUILD: x86_64-pc-cygwin
+  - BUILD: i686-pc-cygwin
+install:
+- if "%BUILD%"=="x86_64-pc-cygwin" set SETUP=setup-x86_64.exe && set CYGWIN_ROOT=C:\cygwin64
+- if "%BUILD%"=="i686-pc-cygwin" set SETUP=setup-x86.exe && set CYGWIN_ROOT=C:\cygwin
+- if not exist %CACHE% mkdir %CACHE%
+- appveyor DownloadFile http://cygwin.com/%SETUP% -FileName %CACHE%\%SETUP%
+- echo Updating Cygwin
+- '%CACHE%\%SETUP% -qnNdO -R "%CYGWIN_ROOT%" -s "%CYGWIN_MIRROR%" -l "%CACHE%"'
+- echo Installing build dependencies
+- '%CACHE%\%SETUP% -qnNdO -R "%CYGWIN_ROOT%" -s "%CYGWIN_MIRROR%" -l "%CACHE%" -P "autoconf,automake,diffutils,git,ImageMagick,libgnome-menu3-devel,libgtk2.0-devel,libtool,make,gcc-core,pkg-config"'
+- echo Install done
+cache:
+- C:\cache
+build_script:
+- SET PATH=%CYGWIN_ROOT%/bin
+- '%CYGWIN_ROOT%\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER; exec 0</dev/null; sh appveyor.sh"'
+test: off
+artifacts:
+- path: staging
+deploy: off
