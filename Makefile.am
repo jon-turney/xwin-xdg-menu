@@ -23,7 +23,7 @@ xwin_xdg_menu_SOURCES = \
 resource.o: resource.rc X.ico cygwinx.ico resource.h version.h xwin-xdg-menu.exe.manifest
 
 X.ico: X.svg
-	$(AM_V_GEN)convert -background transparent $(srcdir)/X.svg -trim -define icon:auto-resize X.ico
+	$(AM_V_GEN)@CONVERT@ -background transparent $(srcdir)/X.svg -trim -define icon:auto-resize X.ico
 
 directorydir = $(datadir)/desktop-directories
 
