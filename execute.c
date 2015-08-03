@@ -131,7 +131,12 @@ ExecAndLogThread(void *cmd)
         }
 
         waitpid(pid, &status, 0);
-        printf("pid %d exited with status %x\n", pid, status);;
+        if (WIFEXITED(status))
+          printf("pid %d exited with status %d\n", pid, WEXITSTATUS(status));
+        else if (WIFSIGNALED(status))
+          printf("pid %d terminated by signal %d\n", pid, WTERMSIG(status));
+        else
+          printf("pid %d status 0x%x\n", pid, status);
     }
     break;
 
