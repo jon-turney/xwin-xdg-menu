@@ -1,7 +1,7 @@
 bin_PROGRAMS = xwin-xdg-menu
 
 AM_CFLAGS = -Wall -Wextra -Wno-unused-parameter
-AM_CPPFLAGS = $(GMENU_CFLAGS)
+AM_CPPFLAGS = $(GMENU_CFLAGS) -D_GNU_SOURCE
 LDADD = $(GMENU_LIBS) -lgdi32
 
 xwin_xdg_menu_SOURCES = \
