@@ -89,6 +89,16 @@ escape_ampersand(const char *text)
   return result;
 }
 
+// convert from UTF-8 to wide char
+static const wchar_t *
+utf8_to_wchar(const char *text)
+{
+  int len = MultiByteToWideChar(CP_UTF8, 0, text, -1, NULL, 0);
+  wchar_t *wtext = malloc(sizeof(wchar_t)*(len + 1));
+  MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, len);
+  return wtext;
+}
+
 static void
 xp_background_blend(BITMAPV4HEADER *bmiV4Header, void *pBits)
 {
@@ -297,20 +307,22 @@ menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
   //
   const gchar *cName = g_app_info_get_name(G_APP_INFO(pAppInfo));
   const char *text = escape_ampersand(cName);
+  const wchar_t *wtext = utf8_to_wchar(text);
 
   // Insert menu item
-  MENUITEMINFO mii;
+  MENUITEMINFOW mii;
   mii.cbSize = sizeof(MENUITEMINFO);
   mii.fMask = MIIM_DATA | MIIM_STRING | MIIM_ID | MIIM_BITMAP;
   mii.fType = MFT_STRING;
-  mii.dwTypeData = (LPTSTR)text;
+  mii.dwTypeData = (wchar_t *)wtext;
   mii.fState = MFS_ENABLED;
   mii.wID = menu->count + ID_EXEC_BASE;
   mii.dwItemData = (uintptr_t)pAppInfo;
   mii.hbmpItem = hBitmap;
 
-  InsertMenuItem(hMenu, -1, TRUE, &mii);
+  InsertMenuItemW(hMenu, -1, TRUE, &mii);
 
+  free((wchar_t *)wtext);
   free((char *)text);
 }
 
@@ -351,21 +363,23 @@ menu_from_directory(xdgmenu *menu, GMenuTreeDirectory *directory)
           store_id_info(menu, NULL, hBitmap);
           const char *text = gmenu_tree_directory_get_name((GMenuTreeDirectory *)item);
           text = escape_ampersand(text);
+          const wchar_t *wtext = utf8_to_wchar(text);
 
           if (hSubMenu) {
             // Insert menu item
-            MENUITEMINFO mii;
+            MENUITEMINFOW mii;
             mii.cbSize = sizeof(MENUITEMINFO);
             mii.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_ID | MIIM_BITMAP;
             mii.fType = MFT_STRING;
-            mii.dwTypeData = (LPTSTR)text;
+            mii.dwTypeData = (wchar_t *)wtext;
             mii.fState = MFS_ENABLED;
             mii.wID = menu->count + ID_EXEC_BASE;
             mii.hSubMenu = hSubMenu;
             mii.hbmpItem = hBitmap;
 
-            InsertMenuItem(hMenu, -1, TRUE, &mii);
+            InsertMenuItemW(hMenu, -1, TRUE, &mii);
           }
+          free((wchar_t *)wtext);
           free((char *)text);
           break;
 
