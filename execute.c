@@ -199,12 +199,24 @@ menu_item_execute(int id)
                   // %c Name key from desktop entry
                   {
                     const char *name = g_app_info_get_display_name(G_APP_INFO(appinfo));
+                    menu_cmd_add_text(&j, &cmd, "\"");
                     menu_cmd_add_text(&j, &cmd, name);
+                    menu_cmd_add_text(&j, &cmd, "\"");
                   }
                   break;
                 case 'i':
                   // %i Icon key following '--icon '
-                  // Not yet implemented
+                  {
+                    GIcon *icon = g_app_info_get_icon(G_APP_INFO(appinfo));
+                    char *name = g_icon_to_string(icon);
+                    if (name)
+                      {
+                        menu_cmd_add_text(&j, &cmd, "--icon ");
+                        menu_cmd_add_text(&j, &cmd, name);
+                      }
+                    g_free(icon);
+                    g_free(name);
+                  }
                   break;
                 case 'k':
                   // %k location of desktop entry file
