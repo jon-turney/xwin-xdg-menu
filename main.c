@@ -36,7 +36,6 @@
 
 GMainLoop *main_loop;
 GKeyFile *keyfile = NULL;
-BOOL is_xp;
 
 //
 // GSourceWinMsgQueue
@@ -110,14 +109,6 @@ winMsgQueueCreate(void)
 int
 main (int argc, char **argv)
 {
-  // check if we need to enable XP specific hacks
-  OSVERSIONINFO osvi;
-  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-  GetVersionEx(&osvi);
-  is_xp = (osvi.dwMajorVersion < 6);
-  if (is_xp)
-    printf("Enabling fake icon alpha for XP\n");
-
   // make sure stdout is line-buffered
   setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
 

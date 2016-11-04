@@ -36,9 +36,7 @@
 void menu_init(int size_id);
 void menu_set_icon_size(int size_id);
 GDesktopAppInfo *menu_get_appinfo(int id);
-void menu_changed(void *tree);
 
 extern GKeyFile *keyfile;
-extern BOOL is_xp;
 
 #endif /* MENU_H */
