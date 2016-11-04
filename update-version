@@ -9,5 +9,5 @@ cmp -s version.h version.h.new
 if (($? > 0)); then
     mv version.h.new version.h
 else
-    rm version.h.new
+    rm -f version.h.new
 fi
