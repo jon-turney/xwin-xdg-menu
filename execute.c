@@ -180,6 +180,10 @@ menu_item_execute(int id)
   // process field codes
   char *cmd = malloc(1);
   unsigned int i, j = 0;
+
+  if (g_desktop_app_info_get_boolean(appinfo, "Terminal"))
+    menu_cmd_add_text(&j, &cmd, "xterm -e ");
+
   for (i = 0; i < strlen(fmt) + 1; i++)
     {
       if (fmt[i] == '%')
