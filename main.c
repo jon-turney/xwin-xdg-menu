@@ -31,10 +31,10 @@
 #include "trayicon.h"
 #include "resource.h"
 #include <glib.h>
+#include <gtk/gtk.h>
 #include <fcntl.h>
 #include <stdio.h>
 
-GMainLoop *main_loop;
 GKeyFile *keyfile = NULL;
 
 //
@@ -66,7 +66,7 @@ winMsgQueueDispatch(GSource *source, GSourceFunc callback, gpointer user_data)
 
       // terminate the main loop on WM_QUIT
       if (msg.message == WM_QUIT)
-        g_main_loop_quit(main_loop);
+        gtk_main_quit();
     }
 
   return G_SOURCE_CONTINUE; // keep this source alive
@@ -112,6 +112,8 @@ main (int argc, char **argv)
   // make sure stdout is line-buffered
   setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
 
+  gtk_init(&argc, &argv);
+
   // load settings
   int size_id = ID_SIZE_DEFAULT;
   keyfile = g_key_file_new();
@@ -133,18 +135,16 @@ main (int argc, char **argv)
     return -1;
 
   // main loop
-  main_loop = g_main_loop_new(NULL, FALSE);
   GSource *msgQueueSource = winMsgQueueCreate();
   g_source_attach(msgQueueSource, g_main_context_default());
 
   initNotifyIcon(hwndMsg);
 
-  g_main_loop_run(main_loop);
+  gtk_main();
 
   deleteNotifyIcon(hwndMsg);
 
   g_source_destroy(msgQueueSource);
-  g_main_loop_unref(main_loop);
 
   // save settings
   g_key_file_save_to_file(keyfile, filename, NULL);

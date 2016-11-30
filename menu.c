@@ -51,6 +51,9 @@ typedef struct _xdgmenu
   // the GMenuTree
   GMenuTree* tree;
 
+  // the icon theme
+  GtkIconTheme *theme;
+
   // the windows menu structure
   HMENU hMenu;
   // size of the bitmaps
@@ -141,17 +144,10 @@ resource_to_bitmap(int id, int size)
 }
 
 static HBITMAP
-gicon_to_bitmap(GIcon *icon, int size)
+gicon_to_bitmap(GtkIconTheme *theme, GIcon *icon, int size)
 {
   GtkIconInfo *iconInfo = NULL;
   HBITMAP hBitmap = NULL;
-
-  // This is expensive, so definitely don't want to this more than once...
-  static GtkIconTheme *theme = NULL;
-  if (!theme) {
-    theme = gtk_icon_theme_new();
-    gtk_icon_theme_set_custom_theme(theme, "Adwaita");
-  }
 
   if (icon)
     iconInfo = gtk_icon_theme_lookup_by_gicon(theme, icon, size, GTK_ICON_LOOKUP_FORCE_SIZE);
@@ -268,7 +264,7 @@ menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
   int size = menu->size;
 
   GIcon *pIcon = g_app_info_get_icon(G_APP_INFO(pAppInfo));
-  HBITMAP hBitmap = gicon_to_bitmap(pIcon, size);
+  HBITMAP hBitmap = gicon_to_bitmap(menu->theme, pIcon, size);
   store_id_info(menu, pAppInfo, hBitmap);
 
   //
@@ -326,7 +322,7 @@ menu_from_directory(xdgmenu *menu, GMenuTreeDirectory *directory)
           item = gmenu_tree_iter_get_directory(iter);
           HMENU hSubMenu = menu_from_directory(menu, (GMenuTreeDirectory *)item);
           GIcon *icon = gmenu_tree_directory_get_icon((GMenuTreeDirectory *)item);
-          HBITMAP hBitmap = gicon_to_bitmap(icon, menu->size);
+          HBITMAP hBitmap = gicon_to_bitmap(menu->theme, icon, menu->size);
           store_id_info(menu, NULL, hBitmap);
           const char *text = gmenu_tree_directory_get_name((GMenuTreeDirectory *)item);
           text = escape_ampersand(text);
@@ -383,7 +379,7 @@ menu_get_default_size(void)
 }
 
 static HMENU
-size_menu(void)
+size_menu(xdgmenu *menu)
 {
   HMENU hMenu;
   MENUITEMINFO mii;
@@ -404,37 +400,37 @@ size_menu(void)
   mii.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
 
   // Insert size menu items
-  hBitmap = gicon_to_bitmap(icon_orig, menu_get_default_size());
+  hBitmap = gicon_to_bitmap(menu->theme, icon_orig, menu_get_default_size());
   mii.dwTypeData = (LPTSTR)"&Default";
   mii.wID = ID_SIZE_DEFAULT;
   mii.hbmpItem = hBitmap;
   InsertMenuItem(hMenu, -1, TRUE, &mii);
 
-  hBitmap = gicon_to_bitmap(icon, 16);
+  hBitmap = gicon_to_bitmap(menu->theme, icon, 16);
   mii.dwTypeData = (LPTSTR)"&16x16";
   mii.wID = ID_SIZE_16;
   mii.hbmpItem = hBitmap;
   InsertMenuItem(hMenu, -1, TRUE, &mii);
 
-  hBitmap = gicon_to_bitmap(icon, 24);
+  hBitmap = gicon_to_bitmap(menu->theme, icon, 24);
   mii.dwTypeData = (LPTSTR)"&24x24";
   mii.wID = ID_SIZE_24;
   mii.hbmpItem = hBitmap;
   InsertMenuItem(hMenu, -1, TRUE, &mii);
 
-  hBitmap = gicon_to_bitmap(icon, 32);
+  hBitmap = gicon_to_bitmap(menu->theme, icon, 32);
   mii.dwTypeData = (LPTSTR)"&32x32";
   mii.wID = ID_SIZE_32;
   mii.hbmpItem = hBitmap;
   InsertMenuItem(hMenu, -1, TRUE, &mii);
 
-  hBitmap = gicon_to_bitmap(icon, 48);
+  hBitmap = gicon_to_bitmap(menu->theme, icon, 48);
   mii.dwTypeData = (LPTSTR)"&48x48";
   mii.wID = ID_SIZE_48;
   mii.hbmpItem = hBitmap;
   InsertMenuItem(hMenu, -1, TRUE, &mii);
 
-  hBitmap = gicon_to_bitmap(icon, 64);
+  hBitmap = gicon_to_bitmap(menu->theme, icon, 64);
   mii.dwTypeData = (LPTSTR)"&64x64";
   mii.wID = ID_SIZE_64;
   mii.hbmpItem = hBitmap;
@@ -463,7 +459,7 @@ settings_menu(xdgmenu *menu)
 
   // Insert About menu item
   icon = g_icon_new_for_string("help-about", NULL);
-  hBitmap = gicon_to_bitmap(icon, menu->size);
+  hBitmap = gicon_to_bitmap(menu->theme, icon, menu->size);
   mii.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
   mii.dwTypeData = (LPTSTR)"&About...";
   mii.wID = ID_APP_ABOUT;
@@ -474,7 +470,7 @@ settings_menu(xdgmenu *menu)
   if (!isatty(STDOUT_FILENO))
     {
       icon = g_icon_new_for_string("text-x-generic", NULL);
-      hBitmap = gicon_to_bitmap(icon, menu->size);
+      hBitmap = gicon_to_bitmap(menu->theme, icon, menu->size);
       mii.dwTypeData = (LPTSTR)"View &logfile";
       mii.wID = ID_APP_LOGFILE;
       mii.hbmpItem = hBitmap;
@@ -483,15 +479,15 @@ settings_menu(xdgmenu *menu)
 
   // Insert icon size submenu
   icon = g_icon_new_for_string("zoom-fit-best", NULL);
-  hBitmap = gicon_to_bitmap(icon, menu->size);
+  hBitmap = gicon_to_bitmap(menu->theme, icon, menu->size);
   mii.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_BITMAP;
   mii.dwTypeData = (LPTSTR)"Icon &size";
-  mii.hSubMenu = size_menu();
+  mii.hSubMenu = size_menu(menu);
   mii.hbmpItem = hBitmap;
   InsertMenuItem(hMenu, -1, TRUE, &mii);
 
   icon = g_icon_new_for_string("application-exit", NULL);
-  hBitmap = gicon_to_bitmap(icon, menu->size);
+  hBitmap = gicon_to_bitmap(menu->theme, icon, menu->size);
   mii.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
   mii.dwTypeData = (LPTSTR)"E&xit";
   mii.wID = ID_APP_EXIT;
@@ -643,6 +639,9 @@ menu_init(int size_id)
   menu.tree = gmenu_tree_new ("xwin-applications.menu", GMENU_TREE_FLAGS_NONE);
   g_assert (menu.tree != NULL);
   g_signal_connect(menu.tree, "changed", G_CALLBACK(menu_changed), NULL);
+
+  menu.theme = gtk_icon_theme_get_default();
+  g_signal_connect(menu.theme, "changed", G_CALLBACK(menu_changed), NULL);
 
   menu_from_tree();
 }
