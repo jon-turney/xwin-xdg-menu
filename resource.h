@@ -34,7 +34,6 @@
 #define IDI_TRAY          300
 #define IDI_XWIN          301
 
-#define IDM_SETTINGS_MENU 102
 #define IDD_ABOUT         103
 #define IDC_ABOUT_WEBSITE 104
 #define IDC_DISPLAY       105

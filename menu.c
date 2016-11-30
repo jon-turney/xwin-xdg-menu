@@ -376,6 +376,131 @@ menu_from_directory(xdgmenu *menu, GMenuTreeDirectory *directory)
   return hMenu;
 }
 
+static int
+menu_get_default_size(void)
+{
+  return MIN(GetSystemMetrics(SM_CXMENUCHECK), GetSystemMetrics(SM_CYMENUCHECK));
+}
+
+static HMENU
+size_menu(void)
+{
+  HMENU hMenu;
+  MENUITEMINFO mii;
+  GIcon *icon, *icon_orig;
+  HBITMAP hBitmap;
+
+  hMenu = CreatePopupMenu();
+  if (!hMenu)
+    {
+      g_print("Unable to CreatePopupMenu()\n");
+      return NULL;
+    }
+
+  // This applies to all subsequent menu items
+  icon = g_icon_new_for_string("zoom-fit-best", NULL);
+  icon_orig = g_icon_new_for_string("zoom-original", NULL);
+  mii.cbSize = sizeof(MENUITEMINFO);
+  mii.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
+
+  // Insert size menu items
+  hBitmap = gicon_to_bitmap(icon_orig, menu_get_default_size());
+  mii.dwTypeData = (LPTSTR)"&Default";
+  mii.wID = ID_SIZE_DEFAULT;
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  hBitmap = gicon_to_bitmap(icon, 16);
+  mii.dwTypeData = (LPTSTR)"&16x16";
+  mii.wID = ID_SIZE_16;
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  hBitmap = gicon_to_bitmap(icon, 24);
+  mii.dwTypeData = (LPTSTR)"&24x24";
+  mii.wID = ID_SIZE_24;
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  hBitmap = gicon_to_bitmap(icon, 32);
+  mii.dwTypeData = (LPTSTR)"&32x32";
+  mii.wID = ID_SIZE_32;
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  hBitmap = gicon_to_bitmap(icon, 48);
+  mii.dwTypeData = (LPTSTR)"&48x48";
+  mii.wID = ID_SIZE_48;
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  hBitmap = gicon_to_bitmap(icon, 64);
+  mii.dwTypeData = (LPTSTR)"&64x64";
+  mii.wID = ID_SIZE_64;
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  return hMenu;
+}
+
+static HMENU
+settings_menu(xdgmenu *menu)
+{
+  HMENU hMenu;
+  MENUITEMINFO mii;
+  GIcon *icon;
+  HBITMAP hBitmap;
+
+  hMenu = CreatePopupMenu();
+  if (!hMenu)
+    {
+      g_print("Unable to CreatePopupMenu()\n");
+      return NULL;
+    }
+
+  // This applies to all subsequent menu items
+  mii.cbSize = sizeof(MENUITEMINFO);
+
+  // Insert About menu item
+  icon = g_icon_new_for_string("help-about", NULL);
+  hBitmap = gicon_to_bitmap(icon, menu->size);
+  mii.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
+  mii.dwTypeData = (LPTSTR)"&About...";
+  mii.wID = ID_APP_ABOUT;
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  // Do not add 'View logfile' if stdout is a tty, as it won't work
+  if (!isatty(STDOUT_FILENO))
+    {
+      icon = g_icon_new_for_string("text-x-generic", NULL);
+      hBitmap = gicon_to_bitmap(icon, menu->size);
+      mii.dwTypeData = (LPTSTR)"View &logfile";
+      mii.wID = ID_APP_LOGFILE;
+      mii.hbmpItem = hBitmap;
+      InsertMenuItem(hMenu, -1, TRUE, &mii);
+    }
+
+  // Insert icon size submenu
+  icon = g_icon_new_for_string("zoom-fit-best", NULL);
+  hBitmap = gicon_to_bitmap(icon, menu->size);
+  mii.fMask = MIIM_SUBMENU | MIIM_STRING | MIIM_BITMAP;
+  mii.dwTypeData = (LPTSTR)"Icon &size";
+  mii.hSubMenu = size_menu();
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  icon = g_icon_new_for_string("application-exit", NULL);
+  hBitmap = gicon_to_bitmap(icon, menu->size);
+  mii.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
+  mii.dwTypeData = (LPTSTR)"E&xit";
+  mii.wID = ID_APP_EXIT;
+  mii.hbmpItem = hBitmap;
+  InsertMenuItem(hMenu, -1, TRUE, &mii);
+
+  return hMenu;
+}
+
 static void
 menu_from_tree(void)
 {
@@ -406,11 +531,7 @@ menu_from_tree(void)
 
     // Add menu items specific to this application
     InsertMenu(menu.hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL);
-    HMENU hSettingsMenu = LoadMenu(GetModuleHandle(NULL), MAKEINTRESOURCE(IDM_SETTINGS_MENU));
-
-    // Remove 'View logfile' if stdout is a tty, as it won't work
-    if (isatty(STDOUT_FILENO))
-      RemoveMenu(hSettingsMenu, ID_APP_LOGFILE, MF_BYCOMMAND);
+    HMENU hSettingsMenu = settings_menu(&menu);
 
     // Add settings submenu, with the application icon
     MENUITEMINFO mii;
@@ -476,7 +597,7 @@ menu_size_id_to_size(int size_id)
       break;
     default:
     case ID_SIZE_DEFAULT:
-      size = MIN(GetSystemMetrics(SM_CXMENUCHECK), GetSystemMetrics(SM_CYMENUCHECK));
+      size = menu_get_default_size();
       break;
     }
 
