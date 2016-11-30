@@ -190,6 +190,8 @@ handleIconMessage(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
               break;
 
             case ID_APP_EXIT:
+              if (in_session)
+                session_logout_execute();
               PostQuitMessage(0);  // XXX: needs confirmation dialog
               break;
             }

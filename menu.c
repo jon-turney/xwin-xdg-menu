@@ -486,10 +486,19 @@ settings_menu(xdgmenu *menu)
   mii.hbmpItem = hBitmap;
   InsertMenuItem(hMenu, -1, TRUE, &mii);
 
-  icon = g_icon_new_for_string("application-exit", NULL);
+  // If this is being run from a session manager, logout upon exit
+  if (in_session)
+    {
+      icon = g_icon_new_for_string("system-log-out", NULL);
+      mii.dwTypeData = (LPTSTR)"E&xit session";
+    }
+   else
+    {
+      icon = g_icon_new_for_string("application-exit", NULL);
+      mii.dwTypeData = (LPTSTR)"E&xit";
+    }
   hBitmap = gicon_to_bitmap(menu->theme, icon, menu->size);
   mii.fMask = MIIM_ID | MIIM_STRING | MIIM_BITMAP;
-  mii.dwTypeData = (LPTSTR)"E&xit";
   mii.wID = ID_APP_EXIT;
   mii.hbmpItem = hBitmap;
   InsertMenuItem(hMenu, -1, TRUE, &mii);

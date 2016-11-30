@@ -265,6 +265,14 @@ menu_item_execute(int id)
 }
 
 void
+session_logout_execute(void)
+{
+  char *cmd;
+  asprintf(&cmd, "gdbus call -e -d org.lxde.SessionManager -o /org/lxde/SessionManager -m org.lxde.SessionManager.Logout");
+  execute_cmd(cmd);
+}
+
+void
 view_logfile_execute(void)
 {
   char logfile[PATH_MAX+1];

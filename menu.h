@@ -37,6 +37,8 @@ void menu_init(int size_id);
 void menu_set_icon_size(int size_id);
 GDesktopAppInfo *menu_get_appinfo(int id);
 
+/* from main.c */
+extern gboolean in_session;
 extern GKeyFile *keyfile;
 
 #endif /* MENU_H */

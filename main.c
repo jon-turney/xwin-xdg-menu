@@ -35,6 +35,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 
+gboolean in_session;
 GKeyFile *keyfile = NULL;
 
 //
@@ -113,6 +114,8 @@ main (int argc, char **argv)
   setvbuf(stdout, NULL, _IOLBF, BUFSIZ);
 
   gtk_init(&argc, &argv);
+
+  in_session = !!g_getenv("_LXSESSION_PID");
 
   // load settings
   int size_id = ID_SIZE_DEFAULT;
