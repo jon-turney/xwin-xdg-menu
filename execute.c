@@ -181,6 +181,16 @@ menu_item_execute(int id)
   char *cmd = malloc(1);
   unsigned int i, j = 0;
 
+  if (g_desktop_app_info_get_boolean(appinfo, "DBusActivatable"))
+    {
+      const char *filename = g_desktop_app_info_get_filename(appinfo);
+      char *bus_name = g_path_get_basename (filename);
+      bus_name[strlen(bus_name) - strlen(".desktop")] = '\0';
+      asprintf(&cmd, "gapplication launch %s", bus_name);
+      execute_cmd(cmd);
+      return;
+    }
+
   if (g_desktop_app_info_get_boolean(appinfo, "Terminal"))
     menu_cmd_add_text(&j, &cmd, "xterm -e ");
 
