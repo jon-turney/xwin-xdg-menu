@@ -268,7 +268,7 @@ menu_item_entry(xdgmenu *menu, HMENU hMenu, GMenuTreeEntry *entry)
   store_id_info(menu, pAppInfo, hBitmap);
 
   //
-  const gchar *cName = g_app_info_get_name(G_APP_INFO(pAppInfo));
+  const gchar *cName = g_app_info_get_display_name(G_APP_INFO(pAppInfo));
   const char *text = escape_ampersand(cName);
   const wchar_t *wtext = utf8_to_wchar(text);
 
@@ -645,7 +645,7 @@ menu_init(int size_id)
   menu.size = menu_size_id_to_size(size_id);
 
   // create the GMenuTree object
-  menu.tree = gmenu_tree_new ("xwin-applications.menu", GMENU_TREE_FLAGS_NONE);
+  menu.tree = gmenu_tree_new ("xwin-applications.menu", GMENU_TREE_FLAGS_SORT_DISPLAY_NAME);
   g_assert (menu.tree != NULL);
   g_signal_connect(menu.tree, "changed", G_CALLBACK(menu_changed), NULL);
 
