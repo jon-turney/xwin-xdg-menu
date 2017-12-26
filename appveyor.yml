@@ -14,7 +14,7 @@ install:
 - echo Updating Cygwin
 - '%CACHE%\%SETUP% -qnNdO -R "%CYGWIN_ROOT%" -s "%CYGWIN_MIRROR%" -l "%CACHE%"'
 - echo Installing build dependencies
-- '%CACHE%\%SETUP% -qnNdO -R "%CYGWIN_ROOT%" -s "%CYGWIN_MIRROR%" -l "%CACHE%" -P "autoconf,automake,diffutils,git,ImageMagick,libgnome-menu3-devel,libgtk2.0-devel,libtool,make,gcc-core,pkg-config"'
+- '%CACHE%\%SETUP% -qnNdO -R "%CYGWIN_ROOT%" -s "%CYGWIN_MIRROR%" -l "%CACHE%" -P "diffutils,git,ImageMagick,libgnome-menu3-devel,libgtk2.0-devel,meson,ninja,gcc-core,pkg-config"'
 - echo Install done
 cache:
 - C:\cache
@@ -23,5 +23,5 @@ build_script:
 - '%CYGWIN_ROOT%\bin\bash -lc "cd $APPVEYOR_BUILD_FOLDER; exec 0</dev/null; sh appveyor.sh"'
 test: off
 artifacts:
-- path: staging
+- path: build/staging
 deploy: off
