@@ -35,7 +35,7 @@ menudir = $(sysconfdir)/xdg/menus
 menu_DATA = \
 	xwin-applications.menu
 
-dist_man1_MANS = xwin-xdg-menu.man
+dist_man_MANS = xwin-xdg-menu.1
 
 EXTRA_DIST = \
 	update-version \
