@@ -125,6 +125,7 @@ aboutDlgProc(HWND hwndDialog, UINT message, WPARAM wParam, LPARAM lParam)
         EndDialog(hwndDialog, 0);
         return TRUE;
       }
+    break;
 
   case WM_CLOSE:
     EndDialog(hwndDialog, 0);
