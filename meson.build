@@ -1,4 +1,4 @@
-project('xwin-xdg-menu', 'c', default_options: ['warning_level=2'])
+project('xwin-xdg-menu', 'c', default_options: ['warning_level=2'], meson_version: '>=0.47.0')
 add_global_arguments('-Wno-unused-parameter', language: 'c')
 
 cc = meson.get_compiler('c')
@@ -18,16 +18,13 @@ version_h = vcs_tag('version.h',
                     output: 'version.h',
                     command: ['git', 'describe', '--long', '--dirty', '--always'])
 
+windows = import('windows')
 rc = find_program('windres')
 res = files('resource.rc')
 res_deps = files('cygwinx.ico', 'resource.h', 'xwin-xdg-menu.exe.manifest')
-resource_o = custom_target('resource.o',
-                           input: res,
-                           output: 'resource.o',
-                           command: [rc, '-I', meson.current_build_dir(),
-                                     '-i', '@INPUT@', '-o', '@OUTPUT@'],
-                           depends: [X_ico, version_h],
-                           depend_files: res_deps)
+resource_o = windows.compile_resources(res,
+                                       depends: [X_ico, version_h],
+                                       depend_files: res_deps)
 
 srcs = files('main.c',
              'execute.c', 'execute.h',
