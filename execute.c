@@ -100,30 +100,38 @@ ExecAndLogThread(void *cmd)
 
     default: /* parent */
     {
+        int stdout_ok = TRUE, stderr_ok = TRUE;
         close(stdout_filedes[1]);
         close(stderr_filedes[1]);
 
         printf("executing '%s', pid %d\n", (char *) cmd, pid);
 
         /* read from pipes, write to log, until both are closed */
-        while (TRUE) {
+        while (stdout_ok || stderr_ok) {
             fd_set readfds, errorfds;
-            int nfds = max(stdout_filedes[0], stderr_filedes[0]) + 1;
+            int nfds = 0;
 
             FD_ZERO(&readfds);
-            FD_SET(stdout_filedes[0], &readfds);
-            FD_SET(stderr_filedes[0], &readfds);
+            if (stdout_ok) {
+                FD_SET(stdout_filedes[0], &readfds);
+                nfds = max(nfds, stdout_filedes[0] + 1);
+            }
+            if (stderr_ok) {
+                FD_SET(stderr_filedes[0], &readfds);
+                nfds = max(nfds, stderr_filedes[0] + 1);
+            }
             errorfds = readfds;
 
             if (select(nfds, &readfds, NULL, &errorfds, NULL) > 0) {
-                if (FD_ISSET(stdout_filedes[0], &readfds))
+                if (FD_ISSET(stdout_filedes[0], &errorfds))
+                    stdout_ok = FALSE;
+                else if (FD_ISSET(stdout_filedes[0], &readfds))
                     LogLineFromFd(stdout_filedes[0], "stdout", pid);
-                if (FD_ISSET(stderr_filedes[0], &readfds))
-                    LogLineFromFd(stderr_filedes[0], "stderr", pid);
 
-                if (FD_ISSET(stdout_filedes[0], &errorfds) &&
-                    FD_ISSET(stderr_filedes[0], &errorfds))
-                    break;
+                if (FD_ISSET(stderr_filedes[0], &errorfds))
+                    stderr_ok = FALSE;
+                else if (FD_ISSET(stderr_filedes[0], &readfds))
+                    LogLineFromFd(stderr_filedes[0], "stderr", pid);
             }
             else {
                 break;
