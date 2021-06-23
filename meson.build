@@ -13,8 +13,7 @@ X_ico = custom_target('X.ico',
                       command: [convert, '-background', 'transparent', '@INPUT@',
                                 '-trim', '-define', 'icon:auto-resize', '@OUTPUT@'])
 
-version_h = vcs_tag('version.h',
-                    input: 'version.h.in',
+version_h = vcs_tag(input: 'version.h.in',
                     output: 'version.h',
                     command: ['git', 'describe', '--long', '--dirty', '--always'])
 
