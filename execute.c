@@ -76,6 +76,7 @@ ExecAndLogThread(void *cmd)
     {
         struct rlimit rl;
         unsigned int fd;
+        int sig;
 
         /* dup write end of pipes onto stderr and stdout */
         close(STDOUT_FILENO);
@@ -88,6 +89,10 @@ ExecAndLogThread(void *cmd)
         getrlimit(RLIMIT_NOFILE, &rl);
         for (fd = STDERR_FILENO + 1; fd < rl.rlim_cur; fd++)
             close(fd);
+
+        /* Set all signal handlers to SIG_DFL. */
+        for (sig = 1; sig < NSIG; sig++)
+            signal(sig, SIG_DFL);
 
         /* Disassociate any TTYs */
         setsid();
