@@ -18,7 +18,6 @@ version_h = vcs_tag(input: 'version.h.in',
                     command: ['git', 'describe', '--long', '--dirty', '--always'])
 
 windows = import('windows')
-rc = find_program('windres')
 res = files('resource.rc')
 res_deps = files('cygwinx.ico', 'resource.h', 'xwin-xdg-menu.exe.manifest')
 resource_o = windows.compile_resources(res,
